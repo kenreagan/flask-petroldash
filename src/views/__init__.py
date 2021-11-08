@@ -32,7 +32,7 @@ def add_record():
 	pic.save(os.path.join(current_app.config['UPLOAD_FOLDER'], pic.filename))
 	record = FuelBaseClass(sales=cash, dips=dips, litres=litres, manual=manual, photo=pic.filename, fuel_type=fuel_name.id, staff_recorded=current_user.id)
 	record.save()
-	flash('recorded success')
+	flash('recorded success', 'danger')
 	return redirect(url_for('application.home'))
 	
 @user.route('/home', methods=['GET'])
@@ -73,7 +73,7 @@ def login(stationid: int):
         password = request.form.get('password')
         staff = Staff.query.filter_by(staff_id=staff_id).first()
         if staff:
-            if not staff.station_id == stationid:
+            if staff.station_id == int(stationid):
                 if check_password_hash(staff.password, password):
                     login_user(staff)
                     return redirect(url_for('application.home'))
