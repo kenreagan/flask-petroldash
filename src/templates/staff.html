@@ -1,0 +1,60 @@
+{% extends 'admin.html' %}
+
+{% block content %}
+<div class="table-section">
+	<h4 class="display-4">Manage Staff</h4>
+	<div class="table-1">
+		<table>
+		<thead>
+			<tr>
+				<td>Staff id</td>
+				<td>Name</td>
+				<td>Station</td>
+				<td>Admin Privileges</td>
+				<td>Action</td>
+			</tr>
+			</thead>
+			<tbody>
+				{% for i in staff %}
+					<tr>
+					<td>{{i.staff_id}}</td>
+					<td>{{i.staff_name}}</td>
+					<td>{{i.station.station_name}}</td>
+					<td>{{i.is_admin}}</td>
+					<td style="display:flex;">
+						<a href="" id="addstaffbtn"><img src="{{url_for('static', filename='images/icons/add.svg')}}"></a>
+						<a href=""><img src="{{url_for('static', filename='images/icons/change.svg')}}"></a>
+						<form method="POST" action="{{url_for('application.delete_user', staffid=i.staff_id)}}">
+							<a type="submit" href=""><img src="{{url_for('static', filename='images/icons/delete.svg')}}"></a>
+						</form>
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock content %}
+
+
+{% block scripts%}
+<script>
+	const addBtn = document.querySelectorAll('#addstaffbtn')
+	
+	const closeMdl = document.querySelector('.close-modal button')
+	
+	const addUserModal = document.querySelector('.add-user')
+	
+	addBtn.forEach((element, index)=>{
+		element.addEventListener('click', (e)=>{
+			e.preventDefault();
+			addUserModal.style.visibility = 'visible'
+		});
+	});
+	
+	closeMdl.addEventListener('click', ()=>{
+		addUserModal.style.visibility = 'hidden'	
+	})
+	
+</script>
+{% endblock scripts%}

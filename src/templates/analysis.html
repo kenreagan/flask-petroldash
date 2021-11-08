@@ -1,0 +1,120 @@
+{% extends 'admin.html'  %}
+
+{% block head %}
+	<script src="{{url_for('static', filename='js/Chart.bundle.min.js')}}"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+{% endblock head %}
+
+{% block content %}
+<section class="analysis-section">
+	<div class="monthly-graph">
+		<canvas id="YearlySales" width="550" height="340">
+		</canvas>
+	</div>
+	<div class="analysisdetails">
+		<h4>Performance records</h4>
+		<table>
+			<thead>
+				<tr>
+					<td>Item</td>
+					<td>Response</td>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Maximum sales</td>
+					<td>{{dataframe['sales'].max()}}</td>
+				</tr>
+				<tr>
+					<td>Minimum sales </td>
+					<td>{{dataframe['sales'].min()}}</td>
+				</tr>
+				<tr>
+					<td>Maximum dips</td>
+					<td>{{dataframe['dips'].max()}}</td>
+				</tr>
+				<tr>
+					<td>Minimum dips</td>
+					<td>{{dataframe['dips'].min()}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</section>
+<section class="more analysis-section">
+	<div>
+		<canvas id="dips" width="550" height="420">
+		
+		</canvas>
+	</div>
+	<div class="pie">
+		<canvas id="manual" width="550" height="400">
+		</canvas>
+	</div>
+</section>
+{% endblock content %}
+
+{% block scripts %}
+<script>
+var timeFormat = 'hh:mm:ss';
+ 
+function newDateString(hours, minutes, seconds) {
+	return moment().hour(hours).minute(minutes).second(seconds).format(timeFormat);
+}
+
+
+var data = {
+	labels: [{% for i in dataframe.index %}"{{i}}",{% endfor %}],
+	datasets:[{
+		data:[{% for x in dataframe['sales'] %}{{x}}, {% endfor %}],
+		fill: true,
+		label: "daily sales",
+		backgroundColor: '#7ef2e2',
+		lineTension: 0.1,
+		borderCapStyle: 'butt'
+	}]
+}
+
+
+var context = document.querySelector('#YearlySales').getContext('2d')
+
+var dips = document.querySelector('#dips').getContext('2d')
+
+var manual = document.querySelector('#manual').getContext('2d')
+
+var cht = new Chart(context, {
+	type: 'bar',
+	data:data
+})
+
+var di = new Chart(dips, {
+	type: 'line',
+	data: {
+	labels: [{% for i in dataframe.index %}"{{i}}",{% endfor %}],
+	datasets:[{
+		data:[{% for x in dataframe['dips'] %}{{x}}, {% endfor %}],
+		fill: true,
+		label: "dips",
+		backgroundColor: '#96e8fa',
+		lineTension: 0.1,
+		borderCapStyle: 'butt'
+	}]
+}
+})
+
+var man = new Chart(manual, {
+	type: 'pie',
+	data: {
+	labels: [{% for i in y['date_recorded']%}"{{i}}",{% endfor %}],
+	datasets:[{
+		data:[{% for x in y['sales'] %}{{x}}, {% endfor %}],
+		fill: true,
+		label: "yearly sales",
+		backgroundColor: '#6bfa94',
+		lineTension: 0.1,
+		borderCapStyle: 'butt'
+	}]
+}
+})
+</script>
+{% endblock scripts %}

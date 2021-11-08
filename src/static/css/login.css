@@ -1,0 +1,48 @@
+.login-modal{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: white;
+	height: 90vh;
+}
+
+
+.login-page{
+	display: flex;
+	flex-direction: column;
+	background-color: white;
+	width: 40%;
+	height: 60%;
+	opacity: 0px;
+	border-radius: 10px;
+
+}
+
+.login-page form {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	height: 100%;
+}
+
+form div{
+	margin: 20px 0px 20px 0px;
+}
+
+
+.login-page div input{
+	width: 100%;
+	padding: 10px;
+}
+
+
+.login-page button[type="submit"]{
+	width: 100%;
+	padding: 2px;
+	height: 40px;
+	background-color: orangered;
+	border-style: none;
+	cursor: pointer;
+	border-radius: 2px;
+}

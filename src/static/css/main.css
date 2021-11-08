@@ -1,0 +1,408 @@
+*{
+	font-size: 14px;
+	box-sizing: border-box;
+	margin: 0px;
+	padding: 0px;
+	font-family: times;
+}
+
+body{
+	height: 100vh;
+	background-color: #f4f4f4;
+}
+
+nav{
+	min-height: 7vh;
+	background-color: #417690;
+}
+
+nav ul{
+	margin-left: auto;
+	display: flex;
+	width: 50%;
+	justify-content: space-around;
+	align-items: center;
+	list-style: none;
+	padding: 10px;
+}
+
+nav ul li a {
+	text-decoration: none;
+	color: white;
+}
+
+
+.Text-moderate{
+	font-size: 16px;
+	font-weight: lighter;
+	padding: 10px;
+}
+
+.main ul{
+	height: 60vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	margin-left: 40px;
+}
+
+
+.main ul li a{
+	text-decoration: none;
+	color: blue;
+}
+
+.stock-feed{
+	width: 100%;
+	height: 80vh;
+	display: flex;
+	flex-direction: column;
+}
+
+.stock-feed form{
+	height: 100%;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+}
+
+.stock-feed form div{
+	display: flex;
+	justify-content: space-around;
+}
+
+.stock-feed form div div{
+	width: 33%;
+	margin-bottom: 10px;
+	display: flex;
+	flex-direction: column;
+}
+
+.stock-feed form input, select{
+	width: 90%;
+	padding: 2px;
+}
+
+
+.stock-open{
+	background-color: white;
+	display: flex;
+	height: 40vh;
+	margin: 10px 10px 5px 5px;
+	padding: 10px;
+}
+
+.stock-close{
+	padding: 10px;
+	background-color: white;
+	display: flex;
+	height: 40vh;
+	margin: 10px 10px 5px 5px;
+}
+
+
+/*
+ * Stylings for the admin home page 
+ * */
+ 
+ 
+.admin-home{
+	width: 100%;
+	display: flex;
+}
+
+main{
+	background-color: #3a383a;
+	color: white;
+	padding: 10px;
+	width: 20%;
+	margin: 10px;
+	height: 90vh;
+}
+
+main ul{
+	display: flex;
+	flex-direction: column;
+	justify-content:space-around;
+	height: auto;
+	list-style: none;
+}
+
+main ul li{
+	width: 100%;
+	padding: 10px;
+	margin: 0.5px solid #f4f4f4;
+}
+
+main ul li:hover{
+	background-color: #847c84;
+}
+
+main ul a{
+	text-decoration: none;
+	color: white;
+}
+
+.mid-section{
+	display: flex;
+	flex-direction: column;
+	width: 80%;
+	height: auto;
+}
+
+
+.alert{
+	height: 40px;
+	padding: 10px;
+	border-radius: 2px;
+	display: flex;
+	justify-content: space-between;
+	transition: 2s ease-out;
+}
+
+.alert-close{
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.alert-danger{
+	background-color: #caf092c7;
+}
+
+.alert-success{
+	background-color: green;
+}
+
+.alert-info{
+	background-color: blue;
+}
+
+.alert-warning{
+	background-color: brown;
+}
+
+.summary-info{
+	background-color: white;
+	width: auto;
+	padding: 20px;
+	height: 40vh;
+	margin: 10px;
+	border-radius: 2px;
+	display: flex;
+        box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	justify-content: space-around;
+}
+
+.card-item{
+	height: 100%;
+	width: 33.3%;
+	margin: 5px;
+	padding: 10px;
+	border-radius: 2px;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	color: white;
+	cursor: pointer;
+}
+
+.table-section{
+	background-color: white;
+	padding: 20px;
+	margin: 10px;
+	height: auto;
+}
+
+.bg-blue{
+	background-color: #79aec8;
+}
+
+
+.bg-red{
+	background-color: #e83e3e;
+}
+
+.bg-orange{
+	background-color: #ffbf00;
+}
+
+/* styling for the table section */
+.mid-section table{
+	height: auto;
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.mid-section table thead{
+	font-weight: lighter;
+	background-color: #79aec8;
+	color: white;
+}
+
+.mid-section table tr, td{
+	padding: 10px;
+}
+
+.mid-section table tbody tr{
+	background-color: #f4f4f4;
+}
+
+/*
+ * analysis section styling
+ * */
+.analysis-section{
+	display: flex;
+	width: 100%;
+	height: 70vh;
+}
+
+.monthly-graph{
+	background-color: white;
+	border-radius: 4px;
+	width: 65%;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	padding: 10px;
+	margin-right: 10px;
+}
+
+.analysisdetails{
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	padding: 5px;
+	margin-left: 10px;
+	width: 30%;
+	background-color: white;
+	height: inherit;
+	border-radius: 4px;
+}
+
+#YearlySales{
+	background-color: white;
+}
+.detailed-view{
+	height: 60vh;
+	display: flex;
+	flex-direction: column;
+	width: 40%;
+	justify-content: space-around;
+	margin: 0px 0px 10px 10px;
+}
+
+.more {
+	width: 95%;
+}
+
+.more div{
+	background-color: white;
+	width: 50%;
+	border-radius: 4px;
+	box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+	padding: 10px;
+	margin: 10px 20px 10px 0px;
+}
+
+
+/*
+ *end analysis section
+ *
+ *
+ *
+ * */
+
+
+
+
+
+
+.detailed-view div{
+	height: 18vh;
+	width: 100%;
+	background-color: white;
+	border-radius: 4px;
+}
+
+.update-modal{
+	width: 100%;
+	display: flex;
+	position: absolute;
+	top: 7vh;
+	height: inherit;
+	background-color: #f4f4f4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+	transition: 0.4s ease-in-out;
+}
+
+.update-body{
+	width: 60%;
+	height: 55vh;
+	border-radius: 4px;
+	background-color: white;
+}
+
+.update-details{
+	width: 100%;
+	height: 60%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
+	padding: 5px;
+}
+
+.update-details-child{
+	display: flex;
+	width: 100%;
+	margin-bottom: 20px;
+	justify-content: space-around;
+}
+
+.update-details-child input[type='text']{
+	width: 100%;
+	outline: none;
+}
+
+.update-heading{
+	background-color: #79aec8;
+	height: 15%;
+	padding: 10px;
+	color: white;
+}
+
+.update-body button[type='submit']{
+	padding: 5px;
+	background-color: #79aec8;
+	outline: none;
+	border-style: none;
+	margin-left: 10px;
+	border-radius: 2px;
+}
+
+.close-modal{
+	position: absolute;
+	top: 10vh;
+	right: 50px;
+}
+
+.close-modal button{
+	border-style: none;
+	cursor: pointer;
+	font-weight: bolder;
+}
+
+/* Modal for staff*/
+.add-user{
+	width: 100%;
+	height: 90vh;
+	position: absolute;
+	top: 7vh;
+	display: flex;
+	position: absolute;
+	height: inherit;
+	background-color: #f4f4f4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	visibility: hidden;
+
+}

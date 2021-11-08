@@ -1,0 +1,166 @@
+{% extends 'admin.html'%}
+
+{% block content %}
+	<section class="home">
+		{% if not current_user.is_authenticated %}
+			<div class="main">
+				<div class="analysis-and-slide">
+					<h4 class="Text-moderate">Your station</h4>
+					<ul>
+						{% for sta in station%}
+						<li class="login-toogler"><a href="{{url_for('application.login', stationid=sta.id)}}">{{sta.station_name}}</a></li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+			{%elif current_user.is_authenticated and not current_user.is_admin %}
+			<section class="stock-feed">
+				<div>
+					<h6>Opening Stock</h6>
+				</div>
+				<div class="stock-open">
+					<form method='POST' action="{{url_for('application.add_record')}}" enctype="multipart/form-data">
+						<div>
+							<div>
+								<label>Fuel * </label>
+								<select name="name" id="fueltype" required>
+									{% for x in fuel%}
+									<option>{{x.fuel_name}}</option>
+									{%endfor %}
+								</select>
+							</div>
+							<div>
+								<label>Cash *</label>
+								<input type="text" required name="cash" autocomplete="off" id="cash">
+							</div>
+							<div>
+								<label>litres *</label>
+								<input type="text" required id="litres" name="litres" autocomplete="off">
+							</div>
+						</div>
+						<div>
+							<div>
+								<label>Manual *</label>
+								<input type="text" required id="manual" name="manual" autocomplete="off">
+							</div>
+							<div>
+								<label>Dips *</label>
+								<input type="text" required id="dips" name="dips" autocomplete="off">
+							</div>
+							<div>
+								<label>insert Picture *</label>
+								<input type="File" name="picture" required>
+							</div>
+						</div>
+						<div>
+							<button type="submit" id="save">save</button>
+						</div>
+					</form>
+				</div>
+				<div>
+					<h6>Closing Stock</h6>
+				</div>
+				<div class="stock-close">
+					<form method='POST' action="{{url_for('application.add_record')}}" enctype="multipart/form-data">
+						<div>
+							<div>
+								<label>Fuel * </label>
+								<select name="name" required>
+									{% for x in fuel%}
+									<option>{{x.fuel_name}}</option>
+									{%endfor %}
+								</select>
+							</div>
+							<div>
+								<label>Cash *</label>
+								<input type="text" required name="cash" autocomplete="off">
+							</div>
+							<div>
+								<label>litres *</label>
+								<input type="text" required name="litres" autocomplete="off">
+							</div>
+						</div>
+						<div>
+							<div>
+								<div>
+									<label>Manual *</label>
+								</div>
+								<input type="text" required name="manual" autocomplete="off">
+							</div>
+							<div>
+								<label>Dips *</label>
+								<input type="text" required name="dips" autocomplete="off">
+							</div>
+							<div>
+								<label>insert Picture *</label>
+								<input type="File" name="picture" required>
+							</div>
+						</div>
+						<div>
+							<button type="submit">submit</button>
+						</div>
+					</form>
+				</div>
+				</section>
+				{% endif %}
+		</section>
+{% endblock content%}
+
+{% block scripts %}
+<script>
+{% if current_user.is_authenticated %}
+const fueltype = document.querySelector('#fueltype')
+const cash = document.querySelector('#cash')
+var litres = document.querySelector('#litres')
+var manual = document.querySelector('#manual')
+var dips = document.querySelector('#dips')
+
+var savebtn = document.querySelector('#save')
+
+function main(){
+	var id = parseInt('{{current_user.id}}')
+	var url = `${window.origin}/get/records/${id}`
+	fetch(url, {
+		'method': 'GET',
+		'credentials': 'include',
+		'cache': 'no-cache',
+		'headers' : new Headers({
+			'content-type': 'application/json'
+		})
+	}).then((response)=>response.json()).then((data)=>{
+		fueltype.addEventListener('change', ()=>{
+			for(var i=0; i < data.rec.length; i++){
+				if(fueltype.value === 'AGO' && data.rec[i]['fuel name'] === 'AGO'){
+					cash.value = data.rec[i].Sales
+					manual.value = data.rec[i].manual
+					litres.value = data.rec[i].litres
+					dips.value = data.rec[i].dips
+					savebtn.disabled = true
+				}else if(fueltype.value === 'PMS' && data.rec[i]['fuel name'] === 'PMS'){
+					cash.value = data.rec[i].Sales
+					manual.value = data.rec[i].manual
+					litres.value = data.rec[i].litres
+					dips.value = data.rec[i].dips
+					savebtn.disabled = true
+				}else if(fueltype.value === 'IK' && data.rec[i]['fuel name'] === 'IK'){
+					cash.value = data.rec[i].Sales
+					manual.value = data.rec[i].manual
+					litres.value = data.rec[i].litres
+					dips.value = data.rec[i].dips
+					savebtn.disabled = true
+				}else{
+					cash.value = ''
+					manual.value =''
+					litres.value = ''
+					dips.value = ''
+					savebtn.disabled = false
+				}
+			}
+		})
+	})
+}
+{% endif %}
+
+main()
+</script>
+{% endblock scripts %}

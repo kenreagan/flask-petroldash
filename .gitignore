@@ -1,0 +1,13 @@
+#virtualenvironment
+venv/
+
+*.swp
+
+__pycache__/
+
+#All images
+*.png
+*.jpeg
+*.jpg
+
+

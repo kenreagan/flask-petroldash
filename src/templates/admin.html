@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<section class="admin-home">
+	<main>
+		<ul>
+			<li><a href="{{url_for('application.admin_home')}}">DashBoard</a></li>
+			<li><a href="{{url_for('application.admin_home')}}">Daily Sales</a></li>
+			<li><a href="{{url_for('application.monthly_sales')}}">Monthly Sales</a></li>
+			<li><a href="{{url_for('application.manage_staff')}}">Manage Staff</a></li>
+			<li><a href="{{url_for('application.get_report')}}">Get Daily Report</a></li>
+			<li><a href="{{url_for('application.home')}}">Send Message</a></li>
+			<li><a href="{{url_for('application.analysis')}}">Analysis Section</a></li>
+		</ul>
+	</main>
+	<div class="mid-section">
+			{% with messages=get_flashed_messages(with_categories=true) %}
+			{% if messages %}
+				{% for category, message in messages %}
+					<div class="alert alert-{{category}}">
+						<div>
+							{{message}}
+						</div>
+						<div class="alert-close">
+							&times;
+						</div>
+					</div>
+				{% endfor %}
+			{% endif %}
+		{% endwith %}
+		{% if current_user.is_authenticated and current_user.is_admin %}
+		<div class="summary-info">
+			<div class="card-item bg-blue">
+				<small>Daily Sales</small> <br/>
+				<h4 class="display-1"> {{sales}}</h4>
+			</div>
+			<div class="card-item bg-red">
+				<small>Monthly Sales</small><br/>
+				<h4 class="display-1">{{monthly_sales}}</h4>
+			</div>
+			
+			<div class="card-item bg-orange">
+				<small>Yearly Sales </small><br/>
+				<h4 class="display-1">{{yearsum}}</h4>
+			</div>
+		</div>
+		{% endif %}
+		{%block content%}
+		
+		{% endblock content%}
+		</div>
+</section>
+<section class="update-modal">
+	<div class="close-modal">
+		<button>&times;</button>
+	</div>
+	<div class="update-body">
+		<div class="update-heading">
+			<h4>Update Details</h4>
+		</div>
+		<form>
+			<div class="update-details">
+				<div class="update-details-child">
+					<div>
+						<label>Fuel Name * </label>
+						<div>
+							<input type="text" autocomplete="off">
+						</div>
+					</div>
+					<div>
+						<label>Dips * </label>
+						<div>
+							<input type="text" autocomplete="off" id="dips">
+						</div>
+					</div>
+					<div>
+						<label>Manual * </label>
+						<div>
+							<input type="text" autocomplete="off" id="manual">
+						</div>
+					</div>
+				</div>
+				<div class="update-details-child">
+					<div>
+						<label>litres * </label>
+						<div>
+							<input type="text" autocomplete="off" id="litres">
+						</div>
+					</div>
+					<div>
+						<label>Sales * </label>
+						<div>
+							<input type="text" autocomplete="off" id="sales">
+						</div>
+					</div>
+					<div>
+						<label>Station id * </label>
+						<div>
+							<input type="text" autocomplete="off">
+						</div>
+					</div>
+				</div>
+			</div>
+			<button type="submit" id="updatebtn">update detail</button>
+		</form>
+	</div>
+</section>
+<section class="add-user">
+	<div class="close-modal">
+		<button>&times;</button>
+	</div>
+	<div class="update-body">
+		<div class="update-heading">
+			<h4>Create Staff</h4>
+		</div>
+		<form method="POST">
+			<div class="update-details">
+				<div class="update-details-child">
+					<div>
+						<label>Staff Name * </label>
+						<div>
+							<input type="text" autocomplete="off" name="staffName">
+						</div>
+					</div>
+					<div>
+						<label>Staff id * </label>
+						<div>
+							<input type="text" autocomplete="off" id="staffid" name="staffid">
+						</div>
+					</div>
+					<div>
+						<label>Password * </label>
+						<div>
+							<input type="text" autocomplete="off" id="manual" name="password">
+						</div>
+					</div>
+				</div>
+				<div class="update-details-child">
+					<div>
+						<label>Confirm Password * </label>
+						<div>
+							<input type="text" autocomplete="off" id="litres">
+						</div>
+					</div>
+					<div>
+						<label>Select Station* </label>
+						<div>
+							<input type="text" autocomplete="off" id="sales">
+						</div>
+					</div>
+					<div>
+					</div>
+				</div>
+			</div>
+			<button type="submit" id="updatebtn">Create Staff</button>
+		</form>
+	</div>
+</section>
+{% endblock body%}

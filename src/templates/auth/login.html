@@ -1,0 +1,30 @@
+{% extends 'admin.html' %}
+
+{% block head %}
+	<link rel="stylesheet" href="{{url_for('static', filename='css/login.css')}}">
+{% endblock head %}
+
+{% block content %}
+	<section class="login-modal">
+			<div class="login-page">
+				<form method="POST">
+					<div>
+						<label>Staff id * </label>
+					<div>
+					<div>
+						<input type="text" name="staffid">
+					</div>
+					<div>
+						<label>Password * </label>
+					</div>
+					<div>
+						<input type="password" name="password">
+					</div>
+					<div>
+						<button type="submit">Login</button>
+					</div>
+				</form>
+			</div>
+		</section>
+	
+{% endblock content %}

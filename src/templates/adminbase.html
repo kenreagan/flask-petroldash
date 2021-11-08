@@ -1,0 +1,43 @@
+{% extends 'admin.html'%}
+
+{% block content  %}
+<div class="table-section">
+	<h4 class="display-4">Daily Sales</h4>
+	<div class="table-1">
+		<table>
+		<thead>
+			<tr>
+				<td>Date</td>
+				<td>Name</td>
+				<td>Price</td>
+				<td>litres</td>
+				<td>Manual</td>
+				<td>Dips</td>
+				<td>Staff recorded</td>			
+				<td>Station id</td>			
+				<td>Action</td>
+			</tr>
+			</thead>
+			<tbody>
+				{% for i in tdy%}
+			<tr>
+			<td>{{i.date_recorded}}</td>
+			<td>{{i.fuel.fuel_name}}</td>
+			<td>{{i.sales}}</td>
+			<td>{{i.litres}}</td>
+			<td>{{i.manual}}</td>
+			<td>{{i.dips}}</td>
+			<td>{{i.records.staff_name}}</td>
+			<td>{{i.records.station_id}}</td>
+			<td>
+				<a href="{{url_for('application.update_record', id=i.id)}}" id="update"><img src="{{url_for('static', filename='images/icons/change.svg')}}"></a>
+				<a href="{{url_for('application.delete_record', id=i.id)}}"><img src="{{url_for('static', filename='images/icons/delete.svg')}}"></a>
+			</td>
+		</tr>
+		{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{%endblock content %}
+		

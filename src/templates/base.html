@@ -1,0 +1,120 @@
+<!Doctpye html>
+<html>
+	<head>
+		{% if title %}
+		<title>{{title}}</title>
+		{% else %}
+		<title>Petrol Management System</title>
+		{% endif %}
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<link rel="stylesheet" href="{{url_for('static', filename='css/main.css')}}">
+			{% block head %}
+			
+			{% endblock head %}
+	</head>
+	<body>
+		<nav>
+			<ul>
+				<li>
+					<a href="{{url_for('application.home')}}">Home</a>
+				</li>
+				{% if  current_user.is_authenticated and current_user.is_admin %}
+				<li>
+					<a href="{{url_for('application.admin_home')}}">Admin home</a>
+				</li>
+				{% endif %}
+				
+				{% if current_user.is_authenticated %}
+				<li>
+					<a href="{{url_for('application.logout')}}">logout</a>
+				</li>
+				{% endif %}
+			</ul>
+		</nav>
+		
+		{% block body %}
+		{% endblock body%}
+	</body>
+	<script src="{{url_for('static', filename='js/main.js')}}">
+	</script>
+	<script>
+	var nav2 = document.querySelectorAll('#update');
+	var sales = document.querySelector('#sales');
+	var dips = document.querySelector('#dips');
+	var manual = document.querySelector('#manual');
+	var litres = document.querySelector('#litres');
+	const updateModal =document.querySelector('.update-modal')
+	var updatebtn = document.querySelector('#updatebtn')
+	
+	var a;
+	nav2.forEach((element, index)=>{
+		element.addEventListener('click', (e)=>{
+				e.preventDefault();
+				a = parseInt(element['href'].split('/')[5])
+				var url = `${window.origin}/get/details/${a}`
+				
+				fetch(url, {
+						'method': 'GET',
+						'credentials': 'include',
+						'cache': 'no-cache',
+						'header' : new Headers({
+							'content-type': 'application/json'
+						})
+				}).then((response)=>{
+					return(response.json())
+				}).then((data)=>{
+					sales.value = data.Sales;
+					dips.value = data.dips;
+					manual.value = data.manual;
+					litres.value = data.litres;
+				})
+				updateModal.style.visibility = 'visible';
+		});
+		
+		updatebtn.addEventListener('click', (e)=>{
+			e.preventDefault()
+			updateUrl = `${window.origin}/update/record/${a}`
+			var data = {
+				'sales': sales.value,
+				'dips': dips.value,
+				'manual': manual.value,
+				'litres': litres.value
+			}
+				
+			fetch(updateUrl, {
+				'method': 'POST',
+				'credentials': 'include',
+				'cache': 'no-cache',
+				'body': JSON.stringify(data),
+				'headers' : new Headers({
+				'content-type': 'application/json'
+				})
+			}).then((response)=>{
+					location.reload()
+			});
+		});
+	});
+	
+	// the Flash messages part
+	const alert = document.querySelector('.alert')
+	
+	const closebtn = document.querySelector('.alert-close')
+	
+	if(closebtn != null){
+		closebtn.addEventListener('click', ()=>{
+			alert.style.visibility = 'hidden';
+			alert.style.opacity = 0;
+		})
+	};
+	
+	//close modal
+	const closeModal = document.querySelector('.close-modal button')
+	
+	closeModal.addEventListener('click', ()=>{
+		updateModal.style.visibility = 'hidden'	
+	})
+	</script>
+	
+	{% block scripts %}
+	{% endblock scripts%}
+</html>
