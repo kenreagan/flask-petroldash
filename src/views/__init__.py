@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, send_from_directory
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, send_file
 from src.models import  Staff, fueltypes, FuelBaseClass, Station
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -7,6 +7,7 @@ import sqlite3
 from functools import wraps
 from src import db
 import datetime
+from typing import Optional, Callable, Text
 
 user = Blueprint('application', __name__, template_folder='../templates/', static_folder='../static/')
 
@@ -51,7 +52,7 @@ def home():
 @user.route('/get/records/<int:id>', methods=['GET'])
 def get_staff_records(id):
     tod = datetime.datetime.today()
-    staff_feed = FuelBaseClass.query.filter_by(staff_recorded=id).filter(FuelBaseClass.date_recorded > datetime.date(day=tod.day, month=tod.month, year=tod.year)).filter(FuelBaseClass.date_recorded <= datetime.date(day=tod.day + 1, month=tod.month, year=tod.year)).all()
+    staff_feed = FuelBaseClass.query.filter_by(staff_recorded=id).filter(FuelBaseClass.date_recorded > datetime.date(day=tod.day-1, month=tod.month, year=tod.year)).filter(FuelBaseClass.date_recorded <= datetime.date(day=tod.day, month=tod.month, year=tod.year)).all()
     rec = []
     for x in staff_feed:
         rec.append(x.to_json())
@@ -79,9 +80,9 @@ def login(stationid: int):
                     return redirect(url_for('application.home'))
                 flash('wrong credential input the correct ones', 'danger')
                 return redirect(url_for('application.login', stationid=stationid))
-            flash('Staff Does not Exist Make sure you login to your Station', 'danger')
+            flash('Staff Does not Belong to this station, Make sure you login to your Station', 'danger')
             return redirect(url_for('application.login', stationid=stationid))
-        flash('user does not exist', 'danger')
+        flash('user with this staff id does not exists does not exist', 'danger')
         return redirect(url_for('application.login', stationid=stationid))
     return render_template('auth/login.html')
 
@@ -102,7 +103,9 @@ def register():
 @user.route('/logout')
 @login_required
 def logout():
-    logout_user()
+    if current_user.is_authenticated:
+        logout_user()
+        return redirect(url_for('application.home'))
     return redirect(url_for('application.home'))
 
 from io import BytesIO
@@ -216,6 +219,8 @@ def analysis():
 @admins_only
 def get_report():
     connection = sqlite3.connect('./main.sqlite')
+    filename: Optional[str] = 'main.xlsx'
+    filepath = os.path.join(os.getcwd(), filename)
     dataframe = pd.read_sql('SELECT * FROM fuel_base_class', connection, parse_dates=['date_recorded'])
-    dataframe.to_excel('main.xlsx')
-    return send_from_directory(path='.', filename='main.xlsx', as_attachment=True, cache_timeout=0)
+    dataframe.to_excel(filepath)
+    return send_file(filepath)
