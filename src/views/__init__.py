@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, send_file
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app, send_file, abort
 from src.models import  Staff, fueltypes, FuelBaseClass, Station
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -36,19 +36,6 @@ def add_record():
 	flash('recorded success', 'danger')
 	return redirect(url_for('application.home'))
 	
-@user.route('/home', methods=['GET'])
-def home():
-    fuel = fueltypes.query.all()
-    station = Station.query.all()
-    tod = datetime.datetime.today()
-    if current_user.is_authenticated:
-        if tod.day != 1:
-            res = FuelBaseClass.query.filter_by(staff_recorded=current_user.id).filter(FuelBaseClass.date_recorded > datetime.date(day=tod.day - 1, month=tod.month, year=tod.year)).filter(FuelBaseClass.date_recorded <= datetime.date(day=tod.day, month=tod.month, year=tod.year)).all()
-            return render_template('home.html', fuel=fuel, station=station, res=res, totlen=len(res))
-        res = FuelBaseClass.query.filter_by(staff_recorded=current_user.id).filter(FuelBaseClass.date_recorded > datetime.date(day=tod.day, month=tod.month, year=tod.year)).filter(FuelBaseClass.date_recorded <= datetime.date(day=tod.day, month=tod.month, year=tod.year)).all()
-        return render_template('home.html', fuel=fuel, station=station, res=res, totlen=len(res))
-    return render_template('home.html', fuel=fuel, station=station)
-
 @user.route('/get/records/<int:id>', methods=['GET'])
 def get_staff_records(id):
     tod = datetime.datetime.today()
@@ -108,56 +95,46 @@ def logout():
         return redirect(url_for('application.home'))
     return redirect(url_for('application.home'))
 
-from io import BytesIO
 import base64
 import pandas as pd
+from sqlalchemy import func, and_
+
+tod = datetime.datetime.today()
+conn = sqlite3.connect('./main.sqlite')
+dataframe: pd.DataFrame = pd.read_sql('SELECT * FROM fuel_base_class', conn)
+dataframe['date_recorded'] = pd.to_datetime(dataframe['date_recorded'])
+tdy: pd.DataFrame = dataframe.loc[dataframe['date_recorded'].dt.day == tod.day]
+monthlysales: int = dataframe.loc[(dataframe['date_recorded'].dt.month == tod.month)&(dataframe['date_recorded'].dt.year == tod.year)]
+yearsum:pd.DataFrame = dataframe.loc[dataframe['date_recorded'].dt.year == tod.year]
+
+@user.route('/home', methods=['GET'])
+def home():
+    fuel = fueltypes.query.all()
+    station = Station.query.all()
+    return render_template('home.html', fuel=fuel, station=station, tdy=tdy, sales=tdy['sales'].sum(), monthly_sales=monthlysales['sales'].sum(), yearsum=yearsum['sales'].sum())
 
 @user.route('/admin')
 @admins_only
-def admin_home():    	
-    flbase = FuelBaseClass.query.order_by(FuelBaseClass.date_recorded.desc()).all() 
-    tod = datetime.datetime.today()
-    if tod.day != 1:
-        tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day-1)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all()
-    tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all()
-    sales = sum(i.sales for i in tdy)
-    yeartot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=12, day=tod.day))\
-			.filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=1, day=1)).all()
-    yearsum = sum([i.sales for i in yeartot])
-    monthly_sales = sum([i.sales for i in FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=tod.month, day=30)).filter(FuelBaseClass.date_recorded>=datetime.date(year=tod.year, month=tod.month, day=1)).all()])
-    return render_template('adminbase.html', flbase=flbase, tdy=tdy, sales=sales, monthly_sales=monthly_sales, yearsum=yearsum)
+def admin_home(): 
+    flbase = FuelBaseClass.query.filter(func.date(FuelBaseClass.date_recorded) == datetime.date.today()).all()
+    return render_template('adminbase.html', flbase=flbase, tdy=tdy, sales=tdy['sales'].sum(), monthly_sales=monthlysales['sales'].sum(),yearsum=yearsum['sales'].sum())
 
 @user.route('get/monthly/sales')
 @admins_only
 def monthly_sales():
-    flbase = FuelBaseClass.query.order_by(FuelBaseClass.date_recorded.desc()).all()
-    tod = datetime.datetime.today()
-    if tod.day != 1:
-        tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day-1)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all()
-    tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all() 
-    montot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=tod.month, day=30))\
-    .filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=tod.month, day=1)).all()
-    yeartot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=12, day=tod.day))\
-			.filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=1, day=1)).all()
-    monthly_sales = sum([i.sales for i in montot])
-    return render_template('monthlysales.html', yeartot=yeartot, yearsum=sum([i.sales for i in yeartot]), monthly_sales=monthly_sales, flbase=flbase, sales=sum([i.sales for i in tdy]), tdy=tdy, montot = montot)
+    now = datetime.datetime.utcnow()
+    one_month =now - datetime.timedelta(days=20)
+    flbase = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > one_month).all()
+    return render_template('monthlysales.html', yeartot=yearsum, yearsum=yearsum['sales'].sum(), monthly_sales=monthlysales['sales'].sum(), flbase=flbase, sales=tdy['sales'].sum(), tdy=tdy)
 
 
 @user.route('manage/staff')
 @admins_only
 def manage_staff():
     staff = Staff.query.all()
+    station = Station.query.all()
     flbase = FuelBaseClass.query.order_by(FuelBaseClass.date_recorded.desc()).all()
-    tod = datetime.datetime.today()
-    if tod.day != 1:
-        tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day-1)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all()
-    tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all() 
-    montot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=tod.month, day=30))\
-    .filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=tod.month, day=1)).all()
-    yeartot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=12, day=tod.day))\
-			.filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=1, day=1)).all()
-    monthly_sales = sum([i.sales for i in montot])
-    return render_template('staff.html', staff=staff, yeartot=yeartot, yearsum=sum([i.sales for i in yeartot]), monthly_sales=monthly_sales, flbase=flbase, sales=sum([i.sales for i in tdy]), tdy=tdy, montot = montot)
+    return render_template('staff.html', staff=staff, yeartot=yearsum, yearsum=yearsum['sales'].sum(), monthly_sales=monthlysales['sales'].sum(), flbase=flbase, sales=tdy['sales'].sum(), tdy=tdy, station=station)
 
 
 @user.route('delete/staff/<staffid>', methods=['POST'])
@@ -165,20 +142,27 @@ def manage_staff():
 def delete_user(staffid):
     staff = Staff.query.filter_by(staff_id=staffid).first()
     staff.delete()
-    return redirect(url_for('application.manage_staffi'))
+    flash('user delete success', 'danger')
+    return redirect(url_for('application.manage_staff'))
 
 @user.route('add/user/', methods=['POST'])
 @admins_only
 def add_user():
-	data = request.get_json()
-	return
+    name = request.form.get['staffname']
+    password = request.form.get['password']
+    staff_id = request.form.get['staffid']
+    station_id = request.form.get['stationid']
+    client = Staff(staff_name=staff_name, staff_id=staff_id, password=generate_password_hash(password, method='sha256'), station_id=station_id)
+    client.save()
+    flash('user created successfully', 'danger')
+    return redirect(url_for('application.manage_staff'))
 
 @user.route('delete/record/<int:id>')
 @admins_only
 def delete_record(id):
     fuel_class = FuelBaseClass.query.filter(FuelBaseClass.id==id).first()
     fuel_class.delete()
-    flash('Rsecord successfully deleted', 'success')
+    flash('Record successfully deleted', 'success')
     return redirect(url_for('application.admin_home'))
 
 
@@ -205,22 +189,21 @@ def analysis():
     flbase = FuelBaseClass.query.order_by(FuelBaseClass.date_recorded.desc()).all()
     y = dataframe.groupby([lambda x: x.year, lambda x: x.month]).sum()
     tod = datetime.datetime.today()
-    if tod.day != 1:
-        tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day-1)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all()
-    tdy = FuelBaseClass.query.filter(FuelBaseClass.date_recorded > datetime.date(year=tod.year, month=tod.month, day=tod.day)).filter(FuelBaseClass.date_recorded<=datetime.date(year=tod.year, month=tod.month, day=tod.day)).all() 
-    montot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=tod.month, day=30))\
-    .filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=tod.month, day=1)).all()
-    yeartot = FuelBaseClass.query.filter(FuelBaseClass.date_recorded <= datetime.date(year=tod.year,month=12, day=tod.day))\
-			.filter(FuelBaseClass.date_recorded >= datetime.date(year=tod.year,month=1, day=1)).all()
-    monthly_sales = sum([i.sales for i in montot])
-    return render_template('analysis.html', yeartot=yeartot, yearsum=sum([i.sales for i in yeartot]), monthly_sales=monthly_sales, flbase=flbase, sales=sum([i.sales for i in tdy]), tdy=tdy, montot = montot, dataframe=dataframe, y=y)
+    return render_template('analysis.html', yeartot=yearsum, yearsum=yearsum['sales'].sum(), monthly_sales=monthlysales['sales'].sum(), flbase=flbase, sales=tdy['sales'].sum(), tdy=tdy['sales'], dataframe=dataframe, y=y)
 
 @user.route('/get/report/')
 @admins_only
 def get_report():
-    connection = sqlite3.connect('./main.sqlite')
-    filename: Optional[str] = 'main.xlsx'
-    filepath = os.path.join(os.getcwd(), filename)
-    dataframe = pd.read_sql('SELECT * FROM fuel_base_class', connection, parse_dates=['date_recorded'])
-    dataframe.to_excel(filepath)
-    return send_file(filepath)
+    try:
+        connection = sqlite3.connect('./main.sqlite')
+        filename: Optional[str] = 'main.xlsx'
+        filepath = os.path.join(os.getcwd(), filename)
+        dataframe = pd.read_sql('SELECT * FROM fuel_base_class', connection, parse_dates=['date_recorded'])
+        today = datetime.datetime.today()
+        dataframe.loc[dataframe['date_recorded'].dt.day == today.day].to_excel(filepath)
+    except:
+        abort(500)
+        flash('An error occured while fetching the file, please contact the developer.')
+    finally:
+        connection.close()
+        return send_file(filepath)

@@ -378,7 +378,7 @@ main ul a{
 	border-radius: 2px;
 }
 
-.close-modal{
+.close-modal, .user-modal{
 	position: absolute;
 	top: 10vh;
 	right: 50px;

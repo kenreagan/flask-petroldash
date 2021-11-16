@@ -106,20 +106,20 @@
 	</div>
 </section>
 <section class="add-user">
-	<div class="close-modal">
+	<div class="user-modal">
 		<button>&times;</button>
 	</div>
 	<div class="update-body">
 		<div class="update-heading">
 			<h4>Create Staff</h4>
 		</div>
-		<form method="POST">
+		<form method="POST" action="{{url_for('application.add_user')}}">
 			<div class="update-details">
 				<div class="update-details-child">
 					<div>
 						<label>Staff Name * </label>
 						<div>
-							<input type="text" autocomplete="off" name="staffName">
+							<input type="text" autocomplete="off" name="staffname">
 						</div>
 					</div>
 					<div>
@@ -135,17 +135,15 @@
 						</div>
 					</div>
 				</div>
-				<div class="update-details-child">
-					<div>
-						<label>Confirm Password * </label>
-						<div>
-							<input type="text" autocomplete="off" id="litres">
-						</div>
-					</div>
+				<div class="update-details-child">	
 					<div>
 						<label>Select Station* </label>
 						<div>
-							<input type="text" autocomplete="off" id="sales">
+							<select>
+								{% for stat in station %}
+									<option value="{{stat.id}}">{{stat.station_name}}</option>
+								{% endfor %}
+							</select>
 						</div>
 					</div>
 					<div>

@@ -112,8 +112,16 @@
 	const closeModal = document.querySelector('.close-modal button')
 	
 	closeModal.addEventListener('click', ()=>{
-		updateModal.style.visibility = 'hidden'	
+		updateModal.style.visibility = 'hidden'
+		updateModal.remove()
 	})
+	
+	const userModal = document.querySelector('.user-modal')
+	const addUser = document.querySelector('.add-user')
+	userModal.addEventListener('click', ()=>{
+		addUser.remove()
+	})
+	
 	</script>
 	
 	{% block scripts %}
