@@ -148,10 +148,10 @@ def delete_user(staffid):
 @user.route('add/user/', methods=['POST'])
 @admins_only
 def add_user():
-    name = request.form.get['staffname']
-    password = request.form.get['password']
-    staff_id = request.form.get['staffid']
-    station_id = request.form.get['stationid']
+    staff_name: str = request.form.get('staffname')
+    password: str = request.form.get('password')
+    staff_id: int = int(request.form.get('staffid'))
+    station_id: int = int(request.form.get('stationid'))
     client = Staff(staff_name=staff_name, staff_id=staff_id, password=generate_password_hash(password, method='sha256'), station_id=station_id)
     client.save()
     flash('user created successfully', 'danger')
@@ -203,7 +203,7 @@ def get_report():
         dataframe.loc[dataframe['date_recorded'].dt.day == today.day].to_excel(filepath)
     except:
         abort(500)
-        flash('An error occured while fetching the file, please contact the developer.')
+        flash('An error occured while fetching the file, please contact the developer.','danger')
     finally:
         connection.close()
         return send_file(filepath)

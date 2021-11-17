@@ -139,7 +139,7 @@
 					<div>
 						<label>Select Station* </label>
 						<div>
-							<select>
+							<select name="stationid">
 								{% for stat in station %}
 									<option value="{{stat.id}}">{{stat.station_name}}</option>
 								{% endfor %}

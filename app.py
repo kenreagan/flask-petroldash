@@ -4,6 +4,9 @@ app = create_app(config_class='config.Config')
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    try:
+        app.run(port=5000, debug=True)
+    except OSError as e:
+        print('Port already occupied please choose other port ...')
 
 

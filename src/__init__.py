@@ -14,5 +14,7 @@ def create_app(config_class:Optional[str]):
     login_manager.init_app(app)
     
     from src.views import user
+    from src.errors import error
     app.register_blueprint(user, url_prefix='/')
+    app.register_blueprint(error)
     return app
