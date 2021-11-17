@@ -34,18 +34,7 @@ def add_record():
 	record = FuelBaseClass(sales=cash, dips=dips, litres=litres, manual=manual, photo=pic.filename, fuel_type=fuel_name.id, staff_recorded=current_user.id)
 	record.save()
 	flash('recorded success', 'danger')
-	return redirect(url_for('application.home'))
-	
-@user.route('/get/records/<int:id>', methods=['GET'])
-def get_staff_records(id):
-    tod = datetime.datetime.today()
-    staff_feed = FuelBaseClass.query.filter_by(staff_recorded=id).filter(FuelBaseClass.date_recorded > datetime.date(day=tod.day-1, month=tod.month, year=tod.year)).filter(FuelBaseClass.date_recorded <= datetime.date(day=tod.day, month=tod.month, year=tod.year)).all()
-    rec = []
-    for x in staff_feed:
-        rec.append(x.to_json())
-    return {
-            'rec': rec
-            }
+	return redirect(url_for('application.home'))	
 
 @user.route('/get/details/<int:id>')
 def get_detail(id):
@@ -112,6 +101,17 @@ def home():
     fuel = fueltypes.query.all()
     station = Station.query.all()
     return render_template('home.html', fuel=fuel, station=station, tdy=tdy, sales=tdy['sales'].sum(), monthly_sales=monthlysales['sales'].sum(), yearsum=yearsum['sales'].sum())
+
+@user.route('/get/records/<int:id>', methods=['GET'])
+def get_staff_records(id):
+    tod = datetime.datetime.today()
+    staff_feed = FuelBaseClass.query.filter_by(staff_recorded=id).filter(func.date(FuelBaseClass.date_recorded)==datetime.date.today()).all()
+    rec = []
+    for x in staff_feed:
+        rec.append(x.to_json())
+    return {
+            'rec': rec
+            }
 
 @user.route('/admin')
 @admins_only
